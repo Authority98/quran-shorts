@@ -1,49 +1,68 @@
-import React from 'react';
-import { Play, Pause, SkipForward, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, Pause, SkipForward, Download, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import Modal from './Modal';
 
 const Controls = ({ darkMode }) => {
     const { isPlaying, play, pause, nextVerse, startRecording, isRecording } = useApp();
+    const [showModal, setShowModal] = useState(false);
 
     return (
-        <div className={`flex items-center justify-center gap-8 p-8 pb-10 border-t backdrop-blur-lg transition-colors duration-500
-            ${darkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white/50 border-white/20'}`}>
+        <div className="flex items-center justify-center gap-6 mt-auto pt-6 border-t border-white/10">
+            {/* Modal Integration */}
+            <Modal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                title="Coming Soon"
+                darkMode={darkMode}
+            >
+                <p className="opacity-80">
+                    The video download feature is currently being enhanced to support high-quality audio and perfect synchronization.
+                    <br /><br />
+                    Stay tuned for the update!
+                </p>
+            </Modal>
+
+            <button
+                onClick={() => {
+                    // window.location.reload();
+                    // Actually, let's just reset the context if needed, but reload is easiest for full reset
+                    window.location.reload();
+                }}
+                className={`p-3 rounded-full transition-all duration-300 hover:scale-110 active:scale-95
+                    ${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
+                title="Reset"
+            >
+                <RefreshCw size={20} />
+            </button>
 
             <button
                 onClick={isPlaying ? pause : play}
-                className={`group relative flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95
-                    ${darkMode ? 'bg-white text-slate-900 hover:bg-slate-200 shadow-white/10' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/20'}`}
+                className={`p-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center
+                    ${darkMode
+                        ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-emerald-900/50'
+                        : 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-emerald-200/50'
+                    }`}
             >
                 {isPlaying ? (
-                    <Pause size={32} fill="currentColor" className="relative z-10" />
+                    <Pause size={32} fill="currentColor" />
                 ) : (
-                    <Play size={32} fill="currentColor" className="relative z-10 ml-1" />
+                    <Play size={32} fill="currentColor" className="ml-1" />
                 )}
             </button>
 
             <button
                 onClick={nextVerse}
-                className={`flex items-center justify-center w-14 h-14 rounded-full border transition-all duration-300 shadow-lg hover:scale-105 active:scale-95
-                    ${darkMode ? 'bg-slate-800 text-white border-slate-700 hover:bg-slate-700' : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-50'}`}
+                className={`p-3 rounded-full transition-all duration-300 hover:scale-110 active:scale-95
+                    ${darkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
             >
-                <SkipForward size={28} fill="currentColor" className={darkMode ? 'text-slate-300' : 'text-slate-600'} />
+                <SkipForward size={24} />
             </button>
 
             <button
                 onClick={() => {
-                    // Feature temporarily disabled
-                    alert("Feature coming soon!");
-
-                    /* 
-                    const videoEl = document.getElementById('video-element');
-                    const textEl = document.getElementById('text-overlay');
-                    const audioEl = document.getElementById('audio-element');
-                    if (videoEl && textEl && audioEl) {
-                        startRecording(videoEl, textEl, { current: audioEl });
-                    } else {
-                        console.error("Elements not found for recording");
-                    }
-                    */
+                    // Show Modal instead of alert
+                    setShowModal(true);
                 }}
                 disabled={isRecording}
                 className={`p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 shadow-lg flex items-center justify-center gap-2
