@@ -36,11 +36,26 @@ const getQueryFromText = (text) => {
 
     const lowerText = text.toLowerCase();
 
+    // Mood mapping for context-aware visuals (Abstract concepts)
+    const moodMap = {
+        'hell': 'fire', 'jahannam': 'fire', 'fire': 'fire', 'burn': 'fire',
+        'punishment': 'volcano', 'wrath': 'storm', 'anger': 'storm',
+        'pain': 'storm', 'torment': 'lava', 'evil': 'dark forest',
+        'heaven': 'beautiful garden', 'paradise': 'waterfall', 'jannah': 'beautiful garden',
+        'peace': 'calm water', 'mercy': 'sunrise', 'light': 'sun rays'
+    };
+
+    // Check for mood keywords
+    for (const [keyword, query] of Object.entries(moodMap)) {
+        if (lowerText.includes(keyword)) {
+            return query;
+        }
+    }
+
     // Simple keyword extraction: remove common words, keep longer words
     const stopWords = new Set(['the', 'and', 'is', 'in', 'at', 'of', 'a', 'an', 'to', 'for', 'with', 'on', 'verily', 'indeed', 'that', 'this', 'from', 'upon', 'they', 'them', 'their']);
     let words = lowerText.replace(/[^\w\s]/g, '').split(/\s+/);
 
-    // Just filter, NO replacement, NO mood mapping
     const keywords = words.filter(w => w.length > 3 && !stopWords.has(w));
 
     return keywords.slice(0, 3).join(' ') || 'nature';
