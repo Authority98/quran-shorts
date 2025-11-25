@@ -9,60 +9,63 @@ import { Moon, Sun } from 'lucide-react';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  import { Widgets } from './components/Widgets'; // Added import for Widgets
+  import { useTheme } from './context/ThemeContext'; // Assuming useTheme is from ThemeContext
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
+  const App = () => { // Changed from function App() to const App = () =>
+    const { darkMode, toggleDarkMode } = useTheme(); // Replaced useState and useEffect with useTheme hook
 
-  return (
-    <AppProvider>
-      <div className={`min-h-screen transition-colors duration-500 ${darkMode ? 'bg-slate-950 text-white' : 'bg-[#F5F5F7] text-slate-900'} flex flex-col md:flex-row h-screen overflow-hidden font-sans selection:bg-blue-500/30`}>
-        {/* Sidebar / Controls Area */}
-        <div className={`w-full md:w-[400px] backdrop-blur-2xl border-r flex flex-col h-full z-20 shadow-2xl relative transition-all duration-500
+    // The useEffect for document.documentElement.classList is now assumed to be handled by useTheme or removed.
+
+    return (
+      <AppProvider>
+        <div className={`min-h-screen w-full transition-colors duration-500 overflow-hidden relative ${darkMode ? 'bg-slate-950' : 'bg-slate-50'} flex flex-col md:flex-row h-screen font-sans selection:bg-blue-500/30`}>
+
+          {/* Widgets */}
+          <Widgets darkMode={darkMode} /> {/* Added Widgets component */}
+
+          {/* Sidebar / Controls Area */}
+          <div className={`w-full md:w-[400px] backdrop-blur-2xl border-r flex flex-col h-full z-20 shadow-2xl relative transition-all duration-500
           ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white/70 border-white/20'}`}>
 
-          <div className="p-8 pt-12 pb-6 flex justify-between items-start">
-            <div>
-              <h1 className={`text-3xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>Quran Shorts</h1>
-              <p className={`text-sm mt-1 font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Create beautiful verse videos</p>
+            <div className="p-8 pt-12 pb-6 flex justify-between items-start">
+              <div>
+                <h1 className={`text-3xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>Quran Shorts</h1>
+                <p className={`text-sm mt-1 font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Create beautiful verse videos</p>
+              </div>
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-3 rounded-full transition-all duration-300 ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
             </div>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`p-3 rounded-full transition-all duration-300 ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+
+            <div className="flex-1 overflow-y-auto px-8 py-4 flex flex-col gap-8 scrollbar-hide mask-image-b">
+              <ReciterSelect darkMode={darkMode} />
+              <TranslationSelect darkMode={darkMode} />
+              <ChapterSelect darkMode={darkMode} />
+            </div>
+
+            <Controls darkMode={darkMode} />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-8 py-4 flex flex-col gap-8 scrollbar-hide mask-image-b">
-            <ReciterSelect darkMode={darkMode} />
-            <TranslationSelect darkMode={darkMode} />
-            <ChapterSelect darkMode={darkMode} />
-          </div>
+          {/* Main Preview Area */}
+          <div className={`flex-1 flex items-center justify-center p-8 relative transition-colors duration-500 ${darkMode ? 'bg-slate-950' : 'bg-[#F5F5F7]'}`}>
+            {/* Subtle ambient background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className={`absolute top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full blur-[120px] transition-colors duration-1000 ${darkMode ? 'bg-blue-900/20' : 'bg-blue-400/10'}`} />
+              <div className={`absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[100px] transition-colors duration-1000 ${darkMode ? 'bg-purple-900/20' : 'bg-purple-400/10'}`} />
+            </div>
 
-          <Controls darkMode={darkMode} />
-        </div>
-
-        {/* Main Preview Area */}
-        <div className={`flex-1 flex items-center justify-center p-8 relative transition-colors duration-500 ${darkMode ? 'bg-slate-950' : 'bg-[#F5F5F7]'}`}>
-          {/* Subtle ambient background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className={`absolute top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full blur-[120px] transition-colors duration-1000 ${darkMode ? 'bg-blue-900/20' : 'bg-blue-400/10'}`} />
-            <div className={`absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[100px] transition-colors duration-1000 ${darkMode ? 'bg-purple-900/20' : 'bg-purple-400/10'}`} />
-          </div>
-
-          {/* Standard 9:16 Video Container (TikTok Style) */}
-          <div className="relative w-full max-w-[400px] aspect-[9/16] bg-black rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10 z-10 transform transition-transform hover:scale-[1.01] duration-500">
-            <VideoPlayer />
+            {/* Standard 9:16 Video Container (TikTok Style) */}
+            <div className="relative w-full max-w-[400px] aspect-[9/16] bg-black rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10 z-10 transform transition-transform hover:scale-[1.01] duration-500">
+              <VideoPlayer />
+            </div>
           </div>
         </div>
-      </div>
-    </AppProvider>
-  );
-}
+      </AppProvider>
+    );
+  }
 
-export default App;
+  export default App;
