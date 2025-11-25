@@ -9,7 +9,7 @@ A React application that generates "Shorts" style videos (9:16 aspect ratio) fea
 - **Smart Context-Aware Videos**: Automatically selects video backgrounds based on the meaning of the verse (e.g., "fire" -> fire texture, "sky" -> clouds).
 - **Strict Nature Mode**: Enforces nature-only footage, strictly excluding humans and animals (animals mapped to habitats).
 - **Unique Footage**: Ensures every verse gets a unique background video in a session.
-- **Download Surah**: Export the entire Surah playback as a `.webm` video file with synchronized audio and video.
+- **Download Surah**: Export the entire Surah playback as a `.webm` video file (Coming Soon).
 - **Dark/Light Mode**: Toggle between themes.
 - **Responsive Design**: Optimized for mobile-style viewing (9:16) with a clean, borderless layout.
 

@@ -31,6 +31,10 @@ const Controls = ({ darkMode }) => {
 
             <button
                 onClick={() => {
+                    // Feature temporarily disabled
+                    alert("Feature coming soon!");
+
+                    /* 
                     const videoEl = document.getElementById('video-element');
                     const textEl = document.getElementById('text-overlay');
                     const audioEl = document.getElementById('audio-element');
@@ -39,15 +43,20 @@ const Controls = ({ darkMode }) => {
                     } else {
                         console.error("Elements not found for recording");
                     }
+                    */
                 }}
                 disabled={isRecording}
-                className={`flex items-center justify-center w-14 h-14 rounded-full border transition-all duration-300 shadow-lg hover:scale-105 active:scale-95
-                    ${darkMode ? 'bg-red-900/20 border-red-800 text-red-500 hover:bg-red-900/30' : 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100'}`}
+                className={`p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 shadow-lg flex items-center justify-center gap-2
+                    ${darkMode
+                        ? 'bg-slate-800 text-slate-200 hover:bg-slate-700 hover:shadow-slate-900/50'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 hover:shadow-slate-200/50'
+                    }`}
+                title="Download Video (Coming Soon)"
             >
                 {isRecording ? (
-                    <div className="w-4 h-4 bg-red-500 rounded-sm animate-pulse" />
+                    <div className="w-6 h-6 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                    <Download size={24} className="text-red-500" />
+                    <Download size={24} />
                 )}
             </button>
         </div>
