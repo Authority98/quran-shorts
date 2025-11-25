@@ -52,12 +52,21 @@ const getQueryFromText = (text) => {
         }
     }
 
+    // Map human keywords to inanimate nature concepts to avoid showing people
+    const replacements = {
+        'people': 'landscape', 'person': 'landscape', 'man': 'mountain', 'men': 'mountains',
+        'woman': 'river', 'women': 'rivers', 'child': 'flower', 'children': 'flowers',
+        'baby': 'flower', 'babies': 'flowers', 'mankind': 'earth', 'human': 'nature'
+    };
+
     // Simple keyword extraction: remove common words, keep longer words
     const stopWords = new Set(['the', 'and', 'is', 'in', 'at', 'of', 'a', 'an', 'to', 'for', 'with', 'on', 'verily', 'indeed', 'that', 'this', 'from', 'upon', 'they', 'them', 'their']);
     let words = lowerText.replace(/[^\w\s]/g, '').split(/\s+/);
 
-    // Just filter, NO replacement to allow "people", "animals", etc.
-    const keywords = words.filter(w => w.length > 3 && !stopWords.has(w));
+    // Filter and map words
+    const keywords = words
+        .filter(w => w.length > 3 && !stopWords.has(w))
+        .map(w => replacements[w] || w); // Replace ONLY human terms, keep animals/objects
 
     return keywords.slice(0, 3).join(' ') || 'nature';
 };
@@ -87,8 +96,8 @@ export const getBackgroundVideos = async (verses = []) => {
             // Enforce "nature" in the query
             const baseQuery = getQueryFromText(verse.translation || '');
 
-            // MAX RELEVANCE: No strict filters, just cinematic for quality
-            const query = `${baseQuery} cinematic`;
+            // REFINED RELEVANCE: Cinematic quality, strict no people, but allow animals/objects
+            const query = `${baseQuery} cinematic no people`;
 
             // We push a promise that resolves to a unique video
             videoPromises.push((async () => {
@@ -161,7 +170,7 @@ const getGenericVideos = async () => {
         const response = await axios.get(`${BASE_URL}/search`, {
             headers: { Authorization: PEXELS_API_KEY },
             params: {
-                query: 'nature cinematic',
+                query: 'nature cinematic no people',
                 per_page: 10,
                 orientation: 'portrait',
                 size: 'medium'
