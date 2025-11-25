@@ -22,13 +22,13 @@ function App() {
 
   return (
     <AppProvider>
-      <div className={`min-h-screen w-full transition-colors duration-500 overflow-hidden relative ${darkMode ? 'bg-slate-950' : 'bg-slate-50'} flex flex-col md:flex-row h-screen font-sans selection:bg-blue-500/30`}>
+      <div className={`min-h-screen w-full transition-colors duration-500 relative ${darkMode ? 'bg-slate-950' : 'bg-slate-50'} flex flex-col md:flex-row font-sans selection:bg-blue-500/30`}>
 
         {/* Widgets */}
         <Widgets darkMode={darkMode} />
 
         {/* Sidebar / Controls Area */}
-        <div className={`w-full md:w-[400px] backdrop-blur-2xl border-r flex flex-col h-full z-20 shadow-2xl relative transition-all duration-500
+        <div className={`w-full md:w-[400px] md:h-screen backdrop-blur-2xl border-r flex flex-col z-20 shadow-2xl relative transition-all duration-500
           ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white/70 border-white/20'}`}>
 
           <div className="p-8 pt-12 pb-6 flex justify-between items-start">
@@ -50,11 +50,13 @@ function App() {
             <ChapterSelect darkMode={darkMode} />
           </div>
 
-          <Controls darkMode={darkMode} />
+          <div className="pb-8 px-8"> {/* Added padding container for controls */}
+            <Controls darkMode={darkMode} />
+          </div>
         </div>
 
         {/* Main Preview Area */}
-        <div className={`flex-1 flex items-center justify-center p-8 relative transition-colors duration-500 ${darkMode ? 'bg-slate-950' : 'bg-[#F5F5F7]'}`}>
+        <div className={`flex-1 flex items-center justify-center p-8 min-h-[600px] md:min-h-screen relative transition-colors duration-500 ${darkMode ? 'bg-slate-950' : 'bg-[#F5F5F7]'}`}>
           {/* Subtle ambient background */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className={`absolute top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full blur-[120px] transition-colors duration-1000 ${darkMode ? 'bg-blue-900/20' : 'bg-blue-400/10'}`} />
