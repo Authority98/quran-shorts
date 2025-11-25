@@ -9,6 +9,8 @@ import { Moon, Sun } from 'lucide-react';
 
 import { Widgets } from './components/Widgets';
 
+import Logo from './components/Logo';
+
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
@@ -30,10 +32,6 @@ function App() {
         {/* Sidebar / Controls Area */}
         <div className={`w-full md:w-[400px] md:h-screen backdrop-blur-2xl border-r flex flex-col z-20 shadow-2xl relative transition-all duration-500
           ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white/70 border-white/20'}`}>
-
-          import Logo from './components/Logo';
-
-          // ... inside App component ...
 
           <div className="p-8 pt-12 pb-6 flex justify-between items-start">
             <Logo darkMode={darkMode} />
