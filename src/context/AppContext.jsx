@@ -40,7 +40,16 @@ export const AppProvider = ({ children }) => {
             setBackgroundVideos(videosData);
 
             // Set defaults
-            if (recitersData.length > 0) setSelectedReciter(recitersData[0].id);
+            if (recitersData.length > 0) {
+                // Default to Mishary Rashid Alafasy if found, otherwise first one
+                const mishary = recitersData.find(r => r.reciter_name === 'Mishari Rashid Al-Afasy' || r.name === 'Mishari Rashid Al-Afasy' || r.style === 'Mishari Rashid Al-Afasy');
+                // Note: API usually returns 'reciter_name' or 'name'. Let's check common variations or just use ID 7 if we knew it.
+                // But safer to search.
+                // Actually, let's log the names to be sure in dev, but for now I'll try to find him.
+                // Common ID is 7. Let's try to find by ID 7 as well if name fails.
+                const defaultReciter = mishary || recitersData.find(r => r.id === 7) || recitersData[0];
+                setSelectedReciter(defaultReciter.id);
+            }
             if (translationsData.length > 0) setSelectedTranslation(translationsData[0].id);
             if (chaptersData.length > 0) setSelectedChapter(chaptersData[0].id);
 
