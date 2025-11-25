@@ -59,10 +59,11 @@ const VideoPlayer = () => {
     return (
         <div className="relative w-full h-full overflow-hidden bg-black">
             {/* Background Video */}
-            <AnimatePresence mode='wait'>
+            <AnimatePresence>
                 {currentVideo && (
                     <motion.video
-                        key={currentVideo} // Key change triggers animation
+                        id="video-element"
+                        key={currentVideo}
                         ref={videoRef}
                         src={currentVideo}
                         className="absolute top-0 left-0 w-full h-full object-cover"
@@ -70,10 +71,11 @@ const VideoPlayer = () => {
                         loop
                         muted
                         playsInline
+                        crossOrigin="anonymous" // Needed for canvas capture
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 1 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }} // Slower crossfade
                     />
                 )}
             </AnimatePresence>
@@ -82,7 +84,7 @@ const VideoPlayer = () => {
             <div className="absolute top-0 left-0 w-full h-full bg-black/40" />
 
             {/* Text Content */}
-            <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-6 text-center z-10">
+            <div id="text-overlay" className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-6 text-center z-10">
                 <AnimatePresence mode='wait'>
                     <motion.div
                         key={currentVerse.verse_key}
@@ -92,13 +94,13 @@ const VideoPlayer = () => {
                         transition={{ duration: 0.5 }}
                         className="flex flex-col gap-6"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-white leading-relaxed font-arabic" dir="rtl">
+                        <h2 className="text-3xl md:text-4xl font-bold leading-relaxed font-arabic" dir="rtl" style={{ color: '#ffffff' }}>
                             {currentVerse.text_uthmani}
                         </h2>
-                        <p className="text-lg md:text-xl text-white/90 font-medium">
+                        <p className="text-lg md:text-xl font-medium" style={{ color: '#e2e8f0' }}> {/* slate-200 hex */}
                             {currentVerse.translation}
                         </p>
-                        <span className="text-sm text-white/60 mt-4">
+                        <span className="text-sm mt-4" style={{ color: '#94a3b8' }}> {/* slate-400 hex */}
                             {currentVerse.verse_key}
                         </span>
                     </motion.div>
@@ -107,9 +109,11 @@ const VideoPlayer = () => {
 
             {/* Hidden Audio Player */}
             <audio
+                id="audio-element"
                 ref={audioRef}
                 onEnded={nextVerse}
                 className="hidden"
+                crossOrigin="anonymous"
             />
         </div>
     );

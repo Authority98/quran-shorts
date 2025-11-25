@@ -1,35 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppProvider } from './context/AppContext';
 import ReciterSelect from './components/ReciterSelect';
 import TranslationSelect from './components/TranslationSelect';
 import ChapterSelect from './components/ChapterSelect';
 import VideoPlayer from './components/VideoPlayer';
 import Controls from './components/Controls';
+import { Moon, Sun } from 'lucide-react';
 
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   return (
     <AppProvider>
-      <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row h-screen overflow-hidden">
+      <div className={`min-h-screen transition-colors duration-500 ${darkMode ? 'bg-slate-950 text-white' : 'bg-[#F5F5F7] text-slate-900'} flex flex-col md:flex-row h-screen overflow-hidden font-sans selection:bg-blue-500/30`}>
         {/* Sidebar / Controls Area */}
-        <div className="w-full md:w-1/3 lg:w-1/4 bg-white border-r flex flex-col h-full z-20 shadow-xl">
-          <div className="p-6 border-b">
-            <h1 className="text-2xl font-bold text-gray-900">Quran Shorts</h1>
-            <p className="text-sm text-gray-500">Generate video verses</p>
+        <div className={`w-full md:w-[400px] backdrop-blur-2xl border-r flex flex-col h-full z-20 shadow-2xl relative transition-all duration-500
+          ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white/70 border-white/20'}`}>
+
+          <div className="p-8 pt-12 pb-6 flex justify-between items-start">
+            <div>
+              <h1 className={`text-3xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>Quran Shorts</h1>
+              <p className={`text-sm mt-1 font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Create beautiful verse videos</p>
+            </div>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`p-3 rounded-full transition-all duration-300 ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            >
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-            <ReciterSelect />
-            <TranslationSelect />
-            <ChapterSelect />
+          <div className="flex-1 overflow-y-auto px-8 py-4 flex flex-col gap-8 scrollbar-hide mask-image-b">
+            <ReciterSelect darkMode={darkMode} />
+            <TranslationSelect darkMode={darkMode} />
+            <ChapterSelect darkMode={darkMode} />
           </div>
 
-          <Controls />
+          <Controls darkMode={darkMode} />
         </div>
 
         {/* Main Preview Area */}
-        <div className="flex-1 bg-gray-900 flex items-center justify-center p-4 md:p-8">
-          {/* Phone Frame / Aspect Ratio Container */}
-          <div className="relative w-full max-w-[400px] aspect-[9/16] bg-black rounded-3xl overflow-hidden shadow-2xl border-4 border-gray-800">
+        <div className={`flex-1 flex items-center justify-center p-8 relative transition-colors duration-500 ${darkMode ? 'bg-slate-950' : 'bg-[#F5F5F7]'}`}>
+          {/* Subtle ambient background */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className={`absolute top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full blur-[120px] transition-colors duration-1000 ${darkMode ? 'bg-blue-900/20' : 'bg-blue-400/10'}`} />
+            <div className={`absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[100px] transition-colors duration-1000 ${darkMode ? 'bg-purple-900/20' : 'bg-purple-400/10'}`} />
+          </div>
+
+          {/* Standard 9:16 Video Container (TikTok Style) */}
+          <div className="relative w-full max-w-[400px] aspect-[9/16] bg-black rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10 z-10 transform transition-transform hover:scale-[1.01] duration-500">
             <VideoPlayer />
           </div>
         </div>

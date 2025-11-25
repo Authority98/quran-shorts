@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useRef } from 'react';
 import { getReciters, getTranslations, getChapters, getVerses } from '../services/quranApi';
 import { getBackgroundVideos } from '../services/videoApi';
 
@@ -19,6 +19,9 @@ export const AppProvider = ({ children }) => {
     const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    const [isRecording, setIsRecording] = useState(false);
+    const recorderRef = useRef(null);
 
     // Initial Data Fetch
     useEffect(() => {
@@ -54,6 +57,11 @@ export const AppProvider = ({ children }) => {
                 setIsLoading(true);
                 const versesData = await getVerses(selectedChapter, selectedReciter, selectedTranslation);
                 setVerses(versesData);
+
+                // Fetch smart videos based on the new verses
+                const videosData = await getBackgroundVideos(versesData);
+                setBackgroundVideos(videosData);
+
                 setCurrentVerseIndex(0);
                 setIsPlaying(false);
                 setIsLoading(false);
@@ -64,13 +72,50 @@ export const AppProvider = ({ children }) => {
 
     const play = () => setIsPlaying(true);
     const pause = () => setIsPlaying(false);
-    const nextVerse = () => {
+
+    const nextVerse = async () => {
         if (currentVerseIndex < verses.length - 1) {
             setCurrentVerseIndex(prev => prev + 1);
+
+            // If recording, update the text snapshot for the new verse
+            if (isRecording && recorderRef.current) {
+                // Wait a bit for render
+                setTimeout(() => recorderRef.current.updateTextOverlay(), 100);
+            }
         } else {
             setIsPlaying(false); // Stop at end
             setCurrentVerseIndex(0); // Reset
+
+            // Stop recording if active
+            if (isRecording) {
+                stopRecording();
+            }
         }
+    };
+
+    const startRecording = async (videoEl, textEl, audioEl) => {
+        if (isRecording) return;
+
+        setIsRecording(true);
+        setCurrentVerseIndex(0); // Start from beginning
+        setIsPlaying(true); // Auto play
+
+        // Initialize Recorder
+        const { SurahRecorder } = await import('../utils/Recorder');
+        recorderRef.current = new SurahRecorder(videoEl, textEl, audioEl, () => {
+            setIsRecording(false);
+            alert("Download Complete!");
+        });
+
+        await recorderRef.current.start();
+        await recorderRef.current.updateTextOverlay(); // Capture first verse
+    };
+
+    const stopRecording = () => {
+        if (recorderRef.current) {
+            recorderRef.current.stop();
+        }
+        setIsRecording(false);
     };
 
     return (
@@ -92,7 +137,9 @@ export const AppProvider = ({ children }) => {
             play,
             pause,
             nextVerse,
-            isLoading
+            isLoading,
+            startRecording,
+            isRecording
         }}>
             {children}
         </AppContext.Provider>
