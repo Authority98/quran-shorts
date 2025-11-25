@@ -31,11 +31,12 @@ function App() {
         <div className={`w-full md:w-[400px] md:h-screen backdrop-blur-2xl border-r flex flex-col z-20 shadow-2xl relative transition-all duration-500
           ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white/70 border-white/20'}`}>
 
+          import Logo from './components/Logo';
+
+          // ... inside App component ...
+
           <div className="p-8 pt-12 pb-6 flex justify-between items-start">
-            <div>
-              <h1 className={`text-3xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>Quran Shorts</h1>
-              <p className={`text-sm mt-1 font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Create beautiful verse videos</p>
-            </div>
+            <Logo darkMode={darkMode} />
             <button
               onClick={() => setDarkMode(!darkMode)}
               className={`p-3 rounded-full transition-all duration-300 ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}

@@ -10,6 +10,8 @@ A React application that generates "Shorts" style videos (9:16 aspect ratio) fea
 - **Strict Nature Mode**: Enforces nature-only footage, strictly excluding humans and animals (animals mapped to habitats).
 - **Unique Footage**: Ensures every verse gets a unique background video in a session.
 - **Download Surah**: Export the entire Surah playback as a `.webm` video file (Coming Soon).
+- **Creative Branding**: Custom CSS/SVG logo with a modern, premium design.
+- **Widgets**: Real-time Pakistan time and Rahim Yar Khan weather widgets.
 - **Dark/Light Mode**: Toggle between themes.
 - **Responsive Design**: Optimized for mobile-style viewing (9:16) with a clean, borderless layout.
 
