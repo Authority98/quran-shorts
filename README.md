@@ -57,6 +57,11 @@ A React application that generates "Shorts" style videos (9:16 aspect ratio) fea
 3.  **Watch**: The video will play, displaying verses one by one with synchronized audio and video background.
 4.  **Skip**: Use the Skip button to jump to the next verse.
 
-## License
-
-MIT
+## Troubleshooting
+ 
+ - **Video Playback Issues**: If videos don't play, ensure your Pexels API key is valid and set in `.env`. The app falls back to default nature videos if the API fails.
+ - **Console Errors**: You might see 403 errors if using old fallback URLs; these have been updated to reliable sources.
+ 
+ ## License
+ 
+ MIT
