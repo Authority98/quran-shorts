@@ -36,37 +36,12 @@ const getQueryFromText = (text) => {
 
     const lowerText = text.toLowerCase();
 
-    // Mood mapping for context-aware visuals (Abstract concepts)
-    const moodMap = {
-        'hell': 'fire', 'jahannam': 'fire', 'fire': 'fire', 'burn': 'fire',
-        'punishment': 'volcano', 'wrath': 'storm', 'anger': 'storm',
-        'pain': 'storm', 'torment': 'lava', 'evil': 'dark forest',
-        'heaven': 'beautiful garden', 'paradise': 'waterfall', 'jannah': 'beautiful garden',
-        'peace': 'calm water', 'mercy': 'sunrise', 'light': 'sun rays'
-    };
-
-    // Check for mood keywords
-    for (const [keyword, query] of Object.entries(moodMap)) {
-        if (lowerText.includes(keyword)) {
-            return query;
-        }
-    }
-
-    // Map human keywords to inanimate nature concepts to avoid showing people
-    const replacements = {
-        'people': 'landscape', 'person': 'landscape', 'man': 'mountain', 'men': 'mountains',
-        'woman': 'river', 'women': 'rivers', 'child': 'flower', 'children': 'flowers',
-        'baby': 'flower', 'babies': 'flowers', 'mankind': 'earth', 'human': 'nature'
-    };
-
     // Simple keyword extraction: remove common words, keep longer words
     const stopWords = new Set(['the', 'and', 'is', 'in', 'at', 'of', 'a', 'an', 'to', 'for', 'with', 'on', 'verily', 'indeed', 'that', 'this', 'from', 'upon', 'they', 'them', 'their']);
     let words = lowerText.replace(/[^\w\s]/g, '').split(/\s+/);
 
-    // Filter and map words
-    const keywords = words
-        .filter(w => w.length > 3 && !stopWords.has(w))
-        .map(w => replacements[w] || w); // Replace ONLY human terms, keep animals/objects
+    // Just filter, NO replacement, NO mood mapping
+    const keywords = words.filter(w => w.length > 3 && !stopWords.has(w));
 
     return keywords.slice(0, 3).join(' ') || 'nature';
 };
@@ -96,8 +71,8 @@ export const getBackgroundVideos = async (verses = []) => {
             // Enforce "nature" in the query
             const baseQuery = getQueryFromText(verse.translation || '');
 
-            // REFINED RELEVANCE: Cinematic quality, strict no people, but allow animals/objects
-            const query = `${baseQuery} cinematic no people`;
+            // DRONE ONLY: Strict drone/aerial view
+            const query = `${baseQuery} drone view aerial`;
 
             // We push a promise that resolves to a unique video
             videoPromises.push((async () => {
@@ -170,7 +145,7 @@ const getGenericVideos = async () => {
         const response = await axios.get(`${BASE_URL}/search`, {
             headers: { Authorization: PEXELS_API_KEY },
             params: {
-                query: 'nature cinematic no people',
+                query: 'nature drone view aerial',
                 per_page: 10,
                 orientation: 'portrait',
                 size: 'medium'
