@@ -34,7 +34,32 @@ const markVideoAsUsed = (id) => {
 const getQueryFromText = (text) => {
     if (!text) return 'nature';
 
-    // Map living things to inanimate nature concepts
+    const lowerText = text.toLowerCase();
+
+    // Mood mapping for context-aware visuals
+    const moodMap = {
+        // Tense / Negative
+        'hell': 'fire', 'jahannam': 'fire', 'fire': 'fire', 'burn': 'fire',
+        'punishment': 'volcano', 'wrath': 'storm', 'anger': 'storm',
+        'pain': 'storm', 'torment': 'lava', 'evil': 'dark forest',
+        'sinner': 'desert', 'sin': 'desert', 'disbeliever': 'storm',
+
+        // Peaceful / Positive
+        'heaven': 'beautiful garden', 'paradise': 'waterfall', 'jannah': 'beautiful garden',
+        'garden': 'garden', 'river': 'river', 'fountain': 'fountain',
+        'peace': 'calm water', 'mercy': 'sunrise', 'forgive': 'sunrise',
+        'light': 'sun rays', 'sky': 'sky', 'star': 'starry night',
+        'moon': 'moon', 'sun': 'sun'
+    };
+
+    // Check for mood keywords first
+    for (const [keyword, query] of Object.entries(moodMap)) {
+        if (lowerText.includes(keyword)) {
+            return query;
+        }
+    }
+
+    // Map living things to inanimate nature concepts (Fallback if no strong mood)
     const replacements = {
         'people': 'landscape', 'person': 'landscape', 'man': 'mountain', 'men': 'mountains',
         'woman': 'river', 'women': 'rivers', 'child': 'flower', 'children': 'flowers',
@@ -47,7 +72,7 @@ const getQueryFromText = (text) => {
 
     // Simple keyword extraction: remove common words, keep longer words
     const stopWords = new Set(['the', 'and', 'is', 'in', 'at', 'of', 'a', 'an', 'to', 'for', 'with', 'on']);
-    let words = text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
+    let words = lowerText.replace(/[^\w\s]/g, '').split(/\s+/);
 
     // Filter and map words
     const keywords = words
