@@ -14,6 +14,11 @@ export class SurahRecorder {
         this.isActive = false;
         this.textImage = null;
         this.animationFrameId = null;
+
+        // Audio Context State
+        this.audioCtx = null;
+        this.audioSource = null;
+        this.audioDest = null;
     }
 
     async start() {
@@ -30,27 +35,65 @@ export class SurahRecorder {
         // Capture Stream (30 FPS)
         const stream = this.canvas.captureStream(30);
 
-        // Add Audio Track if available
-        if (this.audioRef.current && this.audioRef.current.captureStream) {
-            // For <audio> elements, captureStream might not work directly in all browsers without playing
-            // We might need to use Web Audio API to connect the node.
-            // For simplicity, let's try to capture the destination if possible, or just record video first.
-            // Actually, mixing audio is hard without Web Audio API.
-            // Let's try a simpler approach: Record the canvas stream, and we might miss audio in the export 
-            // unless we do complex mixing.
-            // WAIT: The user wants "everything, from video, verse, translation etc".
-            // We MUST include audio.
-
-            // Let's try to get the audio stream from the element
+        // Add Audio Track via Web Audio API
+        if (this.audioRef.current) {
             try {
-                const audioStream = this.audioRef.current.mozCaptureStream ? this.audioRef.current.mozCaptureStream() : this.audioRef.current.captureStream();
-                audioStream.getAudioTracks().forEach(track => stream.addTrack(track));
+                // Initialize AudioContext if needed
+                if (!this.audioCtx) {
+                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                if (this.audioCtx.state === 'suspended') {
+                    await this.audioCtx.resume();
+                }
+
+                // Create source only once per element to avoid errors
+                // We attach it to the element itself to persist across recorder instances if needed
+                // or just check if we already created it in this instance
+                if (!this.audioSource) {
+                    // Check if a source is already attached to the DOM element (hacky but safe for React refs)
+                    if (this.audioRef.current._audioSource) {
+                        this.audioSource = this.audioRef.current._audioSource;
+                    } else {
+                        this.audioSource = this.audioCtx.createMediaElementSource(this.audioRef.current);
+                        this.audioRef.current._audioSource = this.audioSource;
+                    }
+                }
+
+                this.audioDest = this.audioCtx.createMediaStreamDestination();
+
+                // Connect Source -> Destination (for recording)
+                this.audioSource.connect(this.audioDest);
+
+                // Connect Source -> Speakers (so user can hear it)
+                this.audioSource.connect(this.audioCtx.destination);
+
+                // Add track to stream
+                if (this.audioDest.stream.getAudioTracks().length > 0) {
+                    stream.addTrack(this.audioDest.stream.getAudioTracks()[0]);
+                }
+
             } catch (e) {
-                console.warn("Could not capture audio stream directly:", e);
+                console.error("Audio setup failed:", e);
             }
         }
 
-        this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+        // Use a mimeType that definitely supports audio
+        const mimeTypes = [
+            'video/webm; codecs=vp9,opus',
+            'video/webm; codecs=vp8,opus',
+            'video/webm'
+        ];
+
+        let selectedMimeType = 'video/webm';
+        for (const type of mimeTypes) {
+            if (MediaRecorder.isTypeSupported(type)) {
+                selectedMimeType = type;
+                break;
+            }
+        }
+
+        this.mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
 
         this.mediaRecorder.ondataavailable = (e) => {
             if (e.data.size > 0) this.chunks.push(e.data);
@@ -64,6 +107,11 @@ export class SurahRecorder {
             a.download = `quran_short_${Date.now()}.webm`;
             a.click();
             this.onComplete();
+
+            // Cleanup Audio Connections to prevent memory leaks or double-audio
+            // We don't close the context because we might reuse it, but we can disconnect
+            // Actually, if we disconnect, the user might stop hearing audio.
+            // Let's leave it connected for now, or handle cleanup carefully.
         };
 
         this.mediaRecorder.start();

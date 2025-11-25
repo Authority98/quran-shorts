@@ -75,13 +75,11 @@ export const AppProvider = ({ children }) => {
 
     const nextVerse = async () => {
         if (currentVerseIndex < verses.length - 1) {
-            setCurrentVerseIndex(prev => prev + 1);
-
-            // If recording, update the text snapshot for the new verse
-            if (isRecording && recorderRef.current) {
-                // Wait a bit for render
-                setTimeout(() => recorderRef.current.updateTextOverlay(), 100);
+            // If recording, pause first to ensure we capture the next verse correctly
+            if (isRecording) {
+                setIsPlaying(false);
             }
+            setCurrentVerseIndex(prev => prev + 1);
         } else {
             setIsPlaying(false); // Stop at end
             setCurrentVerseIndex(0); // Reset
@@ -93,12 +91,29 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Handle Recording Sync: When verse changes, capture text then resume
+    useEffect(() => {
+        if (isRecording && !isPlaying && recorderRef.current) {
+            const syncRecording = async () => {
+                // Wait for DOM to update with new verse text
+                await new Promise(resolve => setTimeout(resolve, 200));
+
+                // Capture the new text
+                await recorderRef.current.updateTextOverlay();
+
+                // Resume playback (and thus recording flow)
+                setIsPlaying(true);
+            };
+            syncRecording();
+        }
+    }, [currentVerseIndex, isRecording, isPlaying]);
+
     const startRecording = async (videoEl, textEl, audioEl) => {
         if (isRecording) return;
 
         setIsRecording(true);
         setCurrentVerseIndex(0); // Start from beginning
-        setIsPlaying(true); // Auto play
+        setIsPlaying(false); // Pause initially to setup
 
         // Initialize Recorder
         const { SurahRecorder } = await import('../utils/Recorder');
@@ -108,7 +123,12 @@ export const AppProvider = ({ children }) => {
         });
 
         await recorderRef.current.start();
-        await recorderRef.current.updateTextOverlay(); // Capture first verse
+
+        // Capture first verse
+        await new Promise(resolve => setTimeout(resolve, 200)); // Wait for render
+        await recorderRef.current.updateTextOverlay();
+
+        setIsPlaying(true); // Start playback
     };
 
     const stopRecording = () => {
