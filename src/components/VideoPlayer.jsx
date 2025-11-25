@@ -115,6 +115,16 @@ const VideoPlayer = () => {
                 className="hidden"
                 crossOrigin="anonymous"
             />
+
+            {/* Preload Next Video */}
+            {backgroundVideos.length > 0 && (
+                <video
+                    src={backgroundVideos[(currentVerseIndex + 1) % backgroundVideos.length]}
+                    className="hidden"
+                    preload="auto"
+                    muted
+                />
+            )}
         </div>
     );
 };

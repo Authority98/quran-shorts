@@ -6,11 +6,15 @@ A React application that generates "Shorts" style videos (9:16 aspect ratio) fea
 
 - **Selectable Reciters**: Choose from a list of available reciters (fetched from Quran.com API).
 - **Selectable Translations**: Choose from various English translations.
-- **Smart Context-Aware Videos**: Automatically selects video backgrounds based on the meaning of the verse (e.g., "fire" -> fire texture, "sky" -> clouds).
-- **Strict Nature Mode**: Enforces nature-only footage, strictly excluding humans and animals (animals mapped to habitats). Prioritizes cinematic drone shots for a premium feel.
-- **Unique Footage**: Ensures every verse gets a unique background video in a session.
-- **Download Surah**: Export the entire Surah playback as a `.webm` video file (Coming Soon).
-- **Creative Branding**: Custom CSS/SVG logo with a modern, premium design.
+### 3. Smart Video Selection (Drone Mode)
+- **Strict Drone Footage**: All background videos are strictly **cinematic drone/aerial shots** for a premium, immersive experience.
+- **Context-Aware**: The app analyzes verse keywords (e.g., "mountain", "sea", "city") to find relevant aerial footage.
+- **No Living Beings**: Strict filtering ensures no humans are shown, maintaining focus on the natural world and Quranic message.
+- **Unique Visuals**: Advanced logic ensures no video is repeated within a single Surah playback.
+
+### 4. Smooth Playback
+- **Preloading**: Next videos are preloaded in the background to ensure seamless, black-screen-free transitions between verses.
+- **Cross-fading**: Gentle cross-fades between scenes.
 - **Widgets**: Real-time Pakistan time and Rahim Yar Khan weather widgets (Desktop only).
 - **Dark/Light Mode**: Toggle between themes.
 - **Responsive Design**: Optimized for mobile-style viewing (9:16) with a clean, borderless layout.
