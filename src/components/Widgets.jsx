@@ -46,7 +46,7 @@ export const Widgets = ({ darkMode }) => {
         ${darkMode ? 'bg-slate-900/40 border-slate-700 text-slate-200' : 'bg-white/40 border-white/50 text-slate-700'}`;
 
     return (
-        <div className="absolute top-6 right-6 z-50 flex flex-col gap-3 items-end pointer-events-none">
+        <div className="absolute top-6 right-6 z-50 hidden md:flex flex-col gap-3 items-end pointer-events-none">
             {/* Time Widget */}
             <div className={cardClass}>
                 <Clock size={18} className="text-emerald-500" />
