@@ -36,48 +36,28 @@ const getQueryFromText = (text) => {
 
     const lowerText = text.toLowerCase();
 
-    // Mood mapping for context-aware visuals
+    // Mood mapping for context-aware visuals (Abstract concepts)
     const moodMap = {
-        // Tense / Negative
         'hell': 'fire', 'jahannam': 'fire', 'fire': 'fire', 'burn': 'fire',
         'punishment': 'volcano', 'wrath': 'storm', 'anger': 'storm',
         'pain': 'storm', 'torment': 'lava', 'evil': 'dark forest',
-        'sinner': 'desert', 'sin': 'desert', 'disbeliever': 'storm',
-
-        // Peaceful / Positive
         'heaven': 'beautiful garden', 'paradise': 'waterfall', 'jannah': 'beautiful garden',
-        'garden': 'garden', 'river': 'river', 'fountain': 'fountain',
-        'peace': 'calm water', 'mercy': 'sunrise', 'forgive': 'sunrise',
-        'light': 'sun rays', 'sky': 'sky', 'star': 'starry night',
-        'moon': 'moon', 'sun': 'sun'
+        'peace': 'calm water', 'mercy': 'sunrise', 'light': 'sun rays'
     };
 
-    // Check for mood keywords first
+    // Check for mood keywords
     for (const [keyword, query] of Object.entries(moodMap)) {
         if (lowerText.includes(keyword)) {
             return query;
         }
     }
 
-    // Map living things to inanimate nature concepts (Fallback if no strong mood)
-    const replacements = {
-        'people': 'landscape', 'person': 'landscape', 'man': 'mountain', 'men': 'mountains',
-        'woman': 'river', 'women': 'rivers', 'child': 'flower', 'children': 'flowers',
-        'baby': 'flower', 'babies': 'flowers', 'animal': 'forest', 'animals': 'forests',
-        'bird': 'sky', 'birds': 'sky', 'camel': 'desert', 'camels': 'deserts',
-        'horse': 'field', 'horses': 'fields', 'sheep': 'meadow', 'wolf': 'forest',
-        'snake': 'sand', 'whale': 'ocean', 'fish': 'sea', 'ant': 'ground',
-        'bee': 'flower', 'spider': 'web', 'elephant': 'mountain', 'lion': 'savannah'
-    };
-
     // Simple keyword extraction: remove common words, keep longer words
-    const stopWords = new Set(['the', 'and', 'is', 'in', 'at', 'of', 'a', 'an', 'to', 'for', 'with', 'on']);
+    const stopWords = new Set(['the', 'and', 'is', 'in', 'at', 'of', 'a', 'an', 'to', 'for', 'with', 'on', 'verily', 'indeed', 'that', 'this', 'from', 'upon', 'they', 'them', 'their']);
     let words = lowerText.replace(/[^\w\s]/g, '').split(/\s+/);
 
-    // Filter and map words
-    const keywords = words
-        .filter(w => w.length > 3 && !stopWords.has(w))
-        .map(w => replacements[w] || w); // Replace living things if found
+    // Just filter, NO replacement to allow "people", "animals", etc.
+    const keywords = words.filter(w => w.length > 3 && !stopWords.has(w));
 
     return keywords.slice(0, 3).join(' ') || 'nature';
 };
@@ -107,8 +87,8 @@ export const getBackgroundVideos = async (verses = []) => {
             // Enforce "nature" in the query
             const baseQuery = getQueryFromText(verse.translation || '');
 
-            // STRICT EXCLUSION: Always append these filters
-            const query = `${baseQuery} no people no animals no birds`;
+            // MAX RELEVANCE: No strict filters, just cinematic for quality
+            const query = `${baseQuery} cinematic`;
 
             // We push a promise that resolves to a unique video
             videoPromises.push((async () => {
@@ -117,7 +97,7 @@ export const getBackgroundVideos = async (verses = []) => {
                         headers: { Authorization: PEXELS_API_KEY },
                         params: {
                             query,
-                            per_page: 15, // Fetch more to increase chance of uniqueness
+                            per_page: 30, // Fetch MORE to increase chance of uniqueness
                             orientation: 'portrait',
                             size: 'medium'
                         },
@@ -181,8 +161,8 @@ const getGenericVideos = async () => {
         const response = await axios.get(`${BASE_URL}/search`, {
             headers: { Authorization: PEXELS_API_KEY },
             params: {
-                query: 'nature no people no animals no birds',
-                per_page: 5,
+                query: 'nature cinematic',
+                per_page: 10,
                 orientation: 'portrait',
                 size: 'medium'
             },
