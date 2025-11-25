@@ -81,7 +81,7 @@ export const getBackgroundVideos = async (verses = []) => {
             const verse = verses[i];
             // Enforce "nature" in the query
             const baseQuery = getQueryFromText(verse.translation || '');
-            const query = `${baseQuery} nature landscape drone view cinematic no people no animals no birds`;
+            const query = `${baseQuery} nature`;
 
             // We push a promise that resolves to a unique video
             videoPromises.push((async () => {
@@ -154,7 +154,7 @@ const getGenericVideos = async () => {
         const response = await axios.get(`${BASE_URL}/search`, {
             headers: { Authorization: PEXELS_API_KEY },
             params: {
-                query: 'nature landscape drone view cinematic no people no animals no birds',
+                query: 'nature',
                 per_page: 5,
                 orientation: 'portrait',
                 size: 'medium'
