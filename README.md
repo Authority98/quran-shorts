@@ -7,7 +7,7 @@ A React application that generates "Shorts" style videos (9:16 aspect ratio) fea
 - **Selectable Reciters**: Choose from a list of available reciters (fetched from Quran.com API).
 - **Selectable Translations**: Choose from various English translations.
 - **Smart Context-Aware Videos**: Automatically selects video backgrounds based on the meaning of the verse (e.g., "fire" -> fire texture, "sky" -> clouds).
-- **Strict Nature Mode**: Enforces nature-only footage, strictly excluding humans and animals (animals mapped to habitats).
+- **Strict Nature Mode**: Enforces nature-only footage, strictly excluding humans and animals (animals mapped to habitats). Prioritizes cinematic drone shots for a premium feel.
 - **Unique Footage**: Ensures every verse gets a unique background video in a session.
 - **Download Surah**: Export the entire Surah playback as a `.webm` video file (Coming Soon).
 - **Creative Branding**: Custom CSS/SVG logo with a modern, premium design.

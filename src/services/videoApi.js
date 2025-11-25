@@ -6,63 +6,82 @@ const BASE_URL = 'https://api.pexels.com/videos';
 // Fallback videos in case API fails or no key
 const FALLBACK_VIDEOS = [
     'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-    'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm',
+    'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm'
 ];
 
-// Keyword mapping for smart context - STRICT NATURE (No Humans, No Animals)
-const KEYWORDS = {
-    // Elements of Nature
-    nature: ['earth', 'land', 'mountain', 'tree', 'garden', 'river', 'fruit', 'grain', 'leaf', 'forest', 'desert', 'sand', 'rock'],
-    sky: ['sky', 'sun', 'moon', 'star', 'cloud', 'night', 'day', 'light', 'dark', 'dawn', 'dusk', 'heaven', 'paradise', 'angel', 'spirit', 'soul'],
-    water: ['sea', 'ocean', 'water', 'rain', 'ship', 'sailing', 'fountain', 'spring'],
-    fire: ['fire', 'hell', 'burn', 'flame', 'punishment', 'blazing', 'smoke', 'heat'],
+// Helper to get used video IDs from localStorage
+const getUsedVideoIds = () => {
+    try {
+        const stored = localStorage.getItem('used_pexels_videos');
+        return new Set(stored ? JSON.parse(stored) : []);
+    } catch (e) {
+        console.error('Error reading used videos from localStorage:', e);
+        return new Set();
+    }
+};
 
-    // Abstract concepts mapped to nature
-    peace: ['peace', 'mercy', 'prayer', 'mosque', 'worship', 'faith', 'truth', 'sign', 'creation', 'time', 'life', 'death'],
-
-    // Living beings mapped to their habitats/elements (Indirect representation)
-    // We do NOT show the animals/people, but the environment they inhabit or a metaphorical element
-    animal_habitat: ['camel', 'cattle', 'bird', 'ant', 'bee', 'spider', 'horse', 'elephant', 'lion', 'wolf', 'people', 'mankind', 'face', 'hand'],
+// Helper to save used video ID to localStorage
+const markVideoAsUsed = (id) => {
+    try {
+        const used = getUsedVideoIds();
+        used.add(id);
+        localStorage.setItem('used_pexels_videos', JSON.stringify([...used]));
+    } catch (e) {
+        console.error('Error saving used video to localStorage:', e);
+    }
 };
 
 const getQueryFromText = (text) => {
-    const lowerText = text.toLowerCase();
+    if (!text) return 'nature';
 
-    // Check for specific categories
-    for (const [category, words] of Object.entries(KEYWORDS)) {
-        if (words.some(word => lowerText.includes(word))) {
-            // Return a specific visual query based on the category, enforcing STRICT nature/landscape
-            switch (category) {
-                case 'fire': return 'fire flames texture'; // Texture ensures abstract/close-up
-                case 'water': return 'ocean waves nature';
-                case 'sky': return 'sky clouds time lapse';
-                case 'nature': return 'nature landscape forest';
-                case 'animal_habitat': return 'nature landscape wilderness'; // Map animals to wilderness
-                case 'peace': return 'mosque architecture sky'; // Mosques are fine, or sky
-                default: return `${category} nature landscape`;
-            }
-        }
-    }
+    // Map living things to inanimate nature concepts
+    const replacements = {
+        'people': 'landscape', 'person': 'landscape', 'man': 'mountain', 'men': 'mountains',
+        'woman': 'river', 'women': 'rivers', 'child': 'flower', 'children': 'flowers',
+        'baby': 'flower', 'babies': 'flowers', 'animal': 'forest', 'animals': 'forests',
+        'bird': 'sky', 'birds': 'sky', 'camel': 'desert', 'camels': 'deserts',
+        'horse': 'field', 'horses': 'fields', 'sheep': 'meadow', 'wolf': 'forest',
+        'snake': 'sand', 'whale': 'ocean', 'fish': 'sea', 'ant': 'ground',
+        'bee': 'flower', 'spider': 'web', 'elephant': 'mountain', 'lion': 'savannah'
+    };
 
-    return 'nature landscape abstract'; // Default fallback
+    // Simple keyword extraction: remove common words, keep longer words
+    const stopWords = new Set(['the', 'and', 'is', 'in', 'at', 'of', 'a', 'an', 'to', 'for', 'with', 'on']);
+    let words = text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
+
+    // Filter and map words
+    const keywords = words
+        .filter(w => w.length > 3 && !stopWords.has(w))
+        .map(w => replacements[w] || w); // Replace living things if found
+
+    return keywords.slice(0, 3).join(' ') || 'nature';
 };
+
+// ... (KEYWORDS and getQueryFromText remain the same) ...
 
 export const getBackgroundVideos = async (verses = []) => {
     try {
+        if (!PEXELS_API_KEY) {
+            console.warn("Pexels API Key is missing. Using fallback videos.");
+            // Return rotated fallbacks
+            return verses.map((_, i) => FALLBACK_VIDEOS[i % FALLBACK_VIDEOS.length]);
+        }
+
         // If no verses provided, just return some generic nature videos
         if (!verses.length) {
             return getGenericVideos();
         }
 
-        const usedVideoUrls = new Set();
+        // Load globally used video IDs
+        const globalUsedVideoIds = getUsedVideoIds();
+        const currentSessionUsedUrls = new Set();
         const videoPromises = [];
 
-        // Process verses sequentially to ensure uniqueness (or use a shared Set if parallel)
-        // For simplicity and to avoid race conditions with the Set, we'll fetch in parallel but filter carefully
-        // However, fetching 5 videos per verse is expensive. Let's do it smartly.
-
-        for (const verse of verses) {
-            const query = getQueryFromText(verse.translation || '');
+        for (let i = 0; i < verses.length; i++) {
+            const verse = verses[i];
+            // Enforce "nature" in the query
+            const baseQuery = getQueryFromText(verse.translation || '');
+            const query = `${baseQuery} nature landscape drone view cinematic no people no animals no birds`;
 
             // We push a promise that resolves to a unique video
             videoPromises.push((async () => {
@@ -71,7 +90,7 @@ export const getBackgroundVideos = async (verses = []) => {
                         headers: { Authorization: PEXELS_API_KEY },
                         params: {
                             query,
-                            per_page: 10, // Fetch more to increase chance of uniqueness
+                            per_page: 15, // Fetch more to increase chance of uniqueness
                             orientation: 'portrait',
                             size: 'medium'
                         },
@@ -79,23 +98,45 @@ export const getBackgroundVideos = async (verses = []) => {
 
                     const videos = response.data.videos;
 
-                    // Find the first video that hasn't been used
+                    // Find the first video that hasn't been used globally or in this session
                     let selectedVideo = null;
+                    let selectedVideoId = null;
+
                     for (const video of videos) {
                         const link = video.video_files[0]?.link;
-                        if (link && !usedVideoUrls.has(link)) {
+                        const id = video.id;
+
+                        if (link && !globalUsedVideoIds.has(id) && !currentSessionUsedUrls.has(link)) {
                             selectedVideo = link;
-                            usedVideoUrls.add(link);
+                            selectedVideoId = id;
+
+                            // Mark as used immediately for this session's logic
+                            currentSessionUsedUrls.add(link);
+                            // We don't update global storage here to avoid race conditions if multiple tabs, 
+                            // but for this simple app it's fine. We'll update it after selection.
                             break;
                         }
                     }
 
-                    // If all used (unlikely with 10), fallback to the first one or a generic fallback
-                    return selectedVideo || videos[0]?.video_files[0]?.link || FALLBACK_VIDEOS[0];
+                    if (selectedVideo) {
+                        markVideoAsUsed(selectedVideoId);
+                        return selectedVideo;
+                    }
+
+                    // If all used, try to find one that hasn't been used in *this* session at least
+                    for (const video of videos) {
+                        const link = video.video_files[0]?.link;
+                        if (link && !currentSessionUsedUrls.has(link)) {
+                            return link;
+                        }
+                    }
+
+                    // Absolute fallback
+                    return videos[0]?.video_files[0]?.link || FALLBACK_VIDEOS[i % FALLBACK_VIDEOS.length];
 
                 } catch (e) {
                     console.error(`Error fetching video for query "${query}":`, e);
-                    return FALLBACK_VIDEOS[0];
+                    return FALLBACK_VIDEOS[i % FALLBACK_VIDEOS.length];
                 }
             })());
         }
@@ -104,7 +145,7 @@ export const getBackgroundVideos = async (verses = []) => {
 
     } catch (error) {
         console.error('Error in smart video fetch:', error);
-        return FALLBACK_VIDEOS;
+        return verses.map((_, i) => FALLBACK_VIDEOS[i % FALLBACK_VIDEOS.length]);
     }
 };
 
@@ -113,7 +154,7 @@ const getGenericVideos = async () => {
         const response = await axios.get(`${BASE_URL}/search`, {
             headers: { Authorization: PEXELS_API_KEY },
             params: {
-                query: 'islamic nature',
+                query: 'nature landscape drone view cinematic no people no animals no birds',
                 per_page: 5,
                 orientation: 'portrait',
                 size: 'medium'
