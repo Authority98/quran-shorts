@@ -6,10 +6,10 @@ A React application that generates "Shorts" style videos (9:16 aspect ratio) fea
 
 - **Selectable Reciters**: Choose from a list of available reciters (fetched from Quran.com API).
 - **Selectable Translations**: Choose from various English translations.
-### 3. Smart Video Selection (Drone Mode)
-- **Strict Drone Footage**: All background videos are strictly **cinematic drone/aerial shots** for a premium, immersive experience.
-- **Context-Aware**: The app analyzes verse keywords (e.g., "mountain", "sea", "city") to find relevant aerial footage.
-- **No Living Beings**: Strict filtering ensures no humans are shown, maintaining focus on the natural world and Quranic message.
+### 3. Smart Video Selection (Nature Drone Mode)
+- **Strict Nature Drone Footage**: All background videos are strictly **cinematic nature drone/aerial shots**.
+- **Simplified Logic**: Removes complex filters and mappings, focusing purely on the natural beauty mentioned in the verses.
+- **Context-Aware**: Extracts keywords from the verse (e.g., "mountain", "sea") and finds relevant aerial nature footage.
 - **Unique Visuals**: Advanced logic ensures no video is repeated within a single Surah playback.
 
 ### 4. Smooth Playback
